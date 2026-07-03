@@ -1,12 +1,9 @@
-# ************************************
-# Python Snake
-# ************************************
 from tkinter import *
 import random
 
 GAME_WIDTH = 700
 GAME_HEIGHT = 700
-SPEED = 100  # ms between moves
+SPEED = 100  
 SPACE_SIZE = 50
 BODY_PARTS = 3
 SNAKE_COLOR = "#00FF00"
@@ -19,7 +16,6 @@ class Snake:
         self.coordinates = []
         self.squares = []
 
-        # Start with a short snake at the origin.
         for _ in range(BODY_PARTS):
             self.coordinates.append((0, 0))
 
@@ -36,13 +32,16 @@ class Snake:
 
 
 class Food:
-    def __init__(self, canvas: Canvas):
-        # Spawn food aligned to the snake grid.
+    def __init__(self, canvas: Canvas, snake: Snake):
         grid_width = GAME_WIDTH // SPACE_SIZE
         grid_height = GAME_HEIGHT // SPACE_SIZE
 
-        x = random.randint(0, grid_width - 1) * SPACE_SIZE
-        y = random.randint(0, grid_height - 1) * SPACE_SIZE
+        while True:
+            x = random.randint(0, grid_width - 1) * SPACE_SIZE
+            y = random.randint(0, grid_height - 1) * SPACE_SIZE
+
+            if (x, y) not in snake.coordinates:
+                break
 
         self.coordinates = [x, y]
         canvas.create_oval(
@@ -74,11 +73,6 @@ def change_direction(new_direction: str):
 
 def check_collisions(snake: Snake) -> bool:
     x, y = snake.coordinates[0]
-
-    if x < 0 or x >= GAME_WIDTH:
-        return True
-    if y < 0 or y >= GAME_HEIGHT:
-        return True
 
     for body_part in snake.coordinates[1:]:
         if x == body_part[0] and y == body_part[1]:
@@ -113,23 +107,31 @@ def next_turn(snake: Snake, food: Food):
     elif direction == "right":
         x += SPACE_SIZE
 
-    # Move: add new head
+    if x < 0:
+        x = GAME_WIDTH - SPACE_SIZE
+    elif x >= GAME_WIDTH:
+        x = 0
+
+    if y < 0:
+        y = GAME_HEIGHT - SPACE_SIZE
+    elif y >= GAME_HEIGHT:
+        y = 0
+
     new_head = (x, y)
     snake.coordinates.insert(0, new_head)
 
     square = canvas.create_rectangle(
-        x, y, x + SPACE_SIZE, y + SPACE_SIZE, fill=SNAKE_COLOR
+        x, y, x + SPACE_SIZE, y + SPACE_SIZE, fill=SNAKE_COLOR, tag="snake"
     )
     snake.squares.insert(0, square)
 
-    # Eat food
+    # Makan apel
     if x == food.coordinates[0] and y == food.coordinates[1]:
         score += 1
         label.config(text=f"Score:{score}")
         canvas.delete("food")
-        food = Food(canvas)  # IMPORTANT: update reference for subsequent turns
+        food = Food(canvas, snake)  
     else:
-        # Remove tail
         snake.coordinates.pop()
         canvas.delete(snake.squares.pop())
 
@@ -140,7 +142,6 @@ def next_turn(snake: Snake, food: Food):
     window.after(SPEED, next_turn, snake, food)
 
 
-# ---------------- GUI setup ----------------
 window = Tk()
 window.title("Snake game")
 window.resizable(False, False)
@@ -151,7 +152,14 @@ direction = "down"
 label = Label(window, text=f"Score:{score}", font=("consolas", 40))
 label.pack()
 
-canvas = Canvas(window, bg=BACKGROUND_COLOR, height=GAME_HEIGHT, width=GAME_WIDTH)
+canvas = Canvas(
+    window, 
+    bg=BACKGROUND_COLOR, 
+    height=GAME_HEIGHT, 
+    width=GAME_WIDTH, 
+    highlightthickness=0, 
+    bd=0
+)
 canvas.pack()
 
 window.update()
@@ -172,9 +180,8 @@ window.bind("<Up>", lambda event: change_direction("up"))
 window.bind("<Down>", lambda event: change_direction("down"))
 
 snake = Snake(canvas)
-food = Food(canvas)
+food = Food(canvas, snake)
 
 next_turn(snake, food)
 
 window.mainloop()
-
