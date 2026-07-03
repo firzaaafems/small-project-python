@@ -179,9 +179,10 @@ window.bind("<Right>", lambda event: change_direction("right"))
 window.bind("<Up>", lambda event: change_direction("up"))
 window.bind("<Down>", lambda event: change_direction("down"))
 
+
 snake = Snake(canvas)
 food = Food(canvas, snake)
 
 next_turn(snake, food)
 
-window.mainloop()
+window.mainloop() 
