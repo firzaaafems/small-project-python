@@ -1,7 +1,3 @@
-# ******************************************************
-# Python Tic Tac Toe game
-# ******************************************************
-
 from tkinter import *
 import random
 
@@ -129,5 +125,3 @@ for row in range(3):
         buttons[row][column].grid(row=row,column=column)
 
 window.mainloop()
-
-# ******************************************************
