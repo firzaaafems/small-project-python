@@ -1,4 +1,3 @@
-# Hangman in Python
 import random
 
 hangman_art = {0: ("   ",
