@@ -185,4 +185,4 @@ food = Food(canvas, snake)
 
 next_turn(snake, food)
 
-window.mainloop() 
+window.mainloop()
